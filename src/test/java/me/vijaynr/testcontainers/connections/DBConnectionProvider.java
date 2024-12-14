@@ -1,4 +1,4 @@
-package me.testcontainers.connections;
+package me.vijaynr.testcontainers.connections;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

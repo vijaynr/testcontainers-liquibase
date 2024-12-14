@@ -1,4 +1,4 @@
-package me.testcontainers.connections;
+package me.vijaynr.testcontainers.connections;
 
 import liquibase.Liquibase;
 import liquibase.database.Database;

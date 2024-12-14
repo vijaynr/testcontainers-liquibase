@@ -1,7 +1,9 @@
-package me.testcontainers.db.mssql;
+package me.vijaynr.testcontainers.db.mssql;
 
-import me.testcontainers.connections.LiquibaseConnectionProvider;
-import me.testcontainers.utils.LiquibaseUtils;
+import me.vijaynr.testcontainers.connections.LiquibaseConnectionProvider;
+import me.vijaynr.testcontainers.constants.DatabaseContainerImages;
+import me.vijaynr.testcontainers.constants.LiquibaseConstants;
+import me.vijaynr.testcontainers.utils.LiquibaseUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -20,20 +22,17 @@ public class LiquibaseMSSQLTest {
     static MSSQLServerContainer<?> mssql;
 
     static {
-        mssql = new MSSQLServerContainer<>(DockerImageName.parse("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04"))
-                .acceptLicense()
-                .withPassword("Novell@123")
-                .withExposedPorts(1433);
+        mssql = new MSSQLServerContainer<>(DockerImageName.parse(DatabaseContainerImages.MSSQL_IMAGE));
     }
 
 
-    static LiquibaseConnectionProvider connectionProvider;
     static LiquibaseUtils lb;
 
     @BeforeAll
     public static void beforeAll() {
+        mssql.acceptLicense();
         mssql.start();
-        connectionProvider = new LiquibaseConnectionProvider(
+        LiquibaseConnectionProvider connectionProvider = new LiquibaseConnectionProvider(
                 mssql.getJdbcUrl(),
                 mssql.getUsername(),
                 mssql.getPassword()
@@ -49,10 +48,10 @@ public class LiquibaseMSSQLTest {
     @Test
     @DisplayName("Test SQL Server Liquibase Migration for Current Update")
     public void testSQLServerLiquibaseMigrationForCurrentUpdate() throws SQLException {
-        lb.setChangelogFile("liquibase/mssql/schema-master.xml");
+        lb.setChangelogFile(LiquibaseConstants.MSSQL_CHANGELOG_FILE);
         lb.update();
 
-        try (Connection connection = connectionProvider.getConnection();
+        try (Connection connection = lb.getConnectionProvider().getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT TOP 1 ID, AUTHOR, FILENAME FROM DATABASECHANGELOG ORDER BY ORDEREXECUTED DESC")
         ) {
@@ -63,13 +62,13 @@ public class LiquibaseMSSQLTest {
 
             assertThat(lastId).isNotNull();
             assertThat(lastAuthor).isNotNull();
-            assertThat(lastFilename).isEqualTo("liquibase/mssql/schema-v2.xml");
+            assertThat(lastFilename).isEqualTo("db/changelog/mssql/schema-v2.xml");
         }
 
-        lb.setChangelogFile("liquibase/mssql/schema-master-update.xml");
+        lb.setChangelogFile(LiquibaseConstants.MSSQL_CHANGELOG_UPDATE_FILE);
         lb.update();
 
-        try (Connection connection = connectionProvider.getConnection();
+        try (Connection connection = lb.getConnectionProvider().getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT TOP 1 ID, AUTHOR, FILENAME FROM DATABASECHANGELOG ORDER BY ORDEREXECUTED DESC")
         ) {
@@ -80,7 +79,7 @@ public class LiquibaseMSSQLTest {
 
             assertThat(lastId).isNotNull();
             assertThat(lastAuthor).isNotNull();
-            assertThat(lastFilename).isEqualTo("liquibase/mssql/schema-v3.xml");
+            assertThat(lastFilename).isEqualTo("db/changelog/mssql/schema-v3.xml");
         }
     }
 }

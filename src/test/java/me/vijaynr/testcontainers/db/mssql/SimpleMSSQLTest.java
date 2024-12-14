@@ -1,6 +1,6 @@
-package me.testcontainers.db.mssql;
+package me.vijaynr.testcontainers.db.mssql;
 
-import me.testcontainers.connections.DBConnectionProvider;
+import me.vijaynr.testcontainers.connections.DBConnectionProvider;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.utility.DockerImageName;

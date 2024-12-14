@@ -5,7 +5,8 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <include file="liquibase/postgres/schema-v1.xml"/>
-    <include file="liquibase/postgres/schema-v2.xml"/>
+    <include file="db/changelog/mssql/schema-v1.xml"/>
+    <include file="db/changelog/mssql/schema-v2.xml"/>
+    <include file="db/changelog/mssql/schema-v3.xml"/>
 
 </databaseChangeLog>

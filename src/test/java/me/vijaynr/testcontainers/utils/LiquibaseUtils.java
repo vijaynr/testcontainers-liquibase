@@ -1,8 +1,8 @@
-package me.testcontainers.utils;
+package me.vijaynr.testcontainers.utils;
 
 import liquibase.Contexts;
 import liquibase.LabelExpression;
-import me.testcontainers.connections.LiquibaseConnectionProvider;
+import me.vijaynr.testcontainers.connections.LiquibaseConnectionProvider;
 
 public class LiquibaseUtils {
 
@@ -10,6 +10,10 @@ public class LiquibaseUtils {
 
     public LiquibaseUtils(LiquibaseConnectionProvider connectionProvider) {
         this.connectionProvider = connectionProvider;
+    }
+
+    public LiquibaseConnectionProvider getConnectionProvider() {
+        return connectionProvider;
     }
 
     public void update() {

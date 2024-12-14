@@ -1,6 +1,7 @@
-package me.testcontainers.db.postgres;
+package me.vijaynr.testcontainers.db.postgres;
 
-import me.testcontainers.connections.DBConnectionProvider;
+import me.vijaynr.testcontainers.connections.DBConnectionProvider;
+import me.vijaynr.testcontainers.constants.DatabaseContainerImages;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -17,11 +18,7 @@ public class SimplePostgresTest {
     static PostgreSQLContainer<?> postgres;
 
     static {
-        postgres = new PostgreSQLContainer<>("postgres:13-alpine")
-                .withDatabaseName("filr")
-                .withUsername("filr")
-                .withPassword("novell")
-                .withExposedPorts(5432);
+        postgres = new PostgreSQLContainer<>(DatabaseContainerImages.POSTGRES_IMAGE);
     }
 
     static DBConnectionProvider connectionProvider;

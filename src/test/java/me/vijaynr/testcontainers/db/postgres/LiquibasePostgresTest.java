@@ -1,7 +1,9 @@
-package me.testcontainers.db.postgres;
+package me.vijaynr.testcontainers.db.postgres;
 
-import me.testcontainers.connections.LiquibaseConnectionProvider;
-import me.testcontainers.utils.LiquibaseUtils;
+import me.vijaynr.testcontainers.connections.LiquibaseConnectionProvider;
+import me.vijaynr.testcontainers.constants.DatabaseContainerImages;
+import me.vijaynr.testcontainers.constants.LiquibaseConstants;
+import me.vijaynr.testcontainers.utils.LiquibaseUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -20,21 +22,15 @@ public class LiquibasePostgresTest {
     static PostgreSQLContainer<?> postgres;
 
     static {
-        postgres = new PostgreSQLContainer<>("postgres:13-alpine")
-                .withDatabaseName("filr")
-                .withUsername("filr")
-                .withPassword("novell")
-                .withPrivilegedMode(true)
-                .withExposedPorts(5432);
+        postgres = new PostgreSQLContainer<>(DatabaseContainerImages.POSTGRES_IMAGE);
     }
 
-    static LiquibaseConnectionProvider connectionProvider;
     static LiquibaseUtils lb;
 
     @BeforeAll
     public static void beforeAll() {
         postgres.start();
-        connectionProvider = new LiquibaseConnectionProvider(
+        LiquibaseConnectionProvider connectionProvider = new LiquibaseConnectionProvider(
                 postgres.getJdbcUrl(),
                 postgres.getUsername(),
                 postgres.getPassword()
@@ -50,10 +46,10 @@ public class LiquibasePostgresTest {
     @Test
     @DisplayName("Test Postgres Liquibase Migration for Current Update")
     public void testPostgresLiquibaseMigrationForCurrentUpdate() throws SQLException {
-        lb.setChangelogFile("liquibase/postgres/schema-master.xml");
+        lb.setChangelogFile(LiquibaseConstants.POSTGRES_CHANGELOG_FILE);
         lb.update();
 
-        try (Connection connection = connectionProvider.getConnection();
+        try (Connection connection = lb.getConnectionProvider().getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT ID, AUTHOR, FILENAME FROM databasechangelog ORDER BY ORDEREXECUTED DESC LIMIT 1")
         ) {
@@ -64,13 +60,13 @@ public class LiquibasePostgresTest {
 
             assertThat(lastId).isNotNull();
             assertThat(lastAuthor).isNotNull();
-            assertThat(lastFilename).isEqualTo("liquibase/postgres/schema-v2.xml");
+            assertThat(lastFilename).isEqualTo("db/changelog/postgres/schema-v2.xml");
         }
 
-        lb.setChangelogFile("liquibase/postgres/schema-master-update.xml");
+        lb.setChangelogFile(LiquibaseConstants.POSTGRES_CHANGELOG_UPDATE_FILE);
         lb.update();
 
-        try (Connection connection = connectionProvider.getConnection();
+        try (Connection connection = lb.getConnectionProvider().getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT ID, AUTHOR, FILENAME FROM databasechangelog ORDER BY ORDEREXECUTED DESC LIMIT 1")
         ) {
@@ -81,7 +77,7 @@ public class LiquibasePostgresTest {
 
             assertThat(lastId).isNotNull();
             assertThat(lastAuthor).isNotNull();
-            assertThat(lastFilename).isEqualTo("liquibase/postgres/schema-v3.xml");
+            assertThat(lastFilename).isEqualTo("db/changelog/postgres/schema-v3.xml");
         }
     }
 }
