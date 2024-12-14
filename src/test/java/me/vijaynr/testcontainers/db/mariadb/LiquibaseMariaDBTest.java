@@ -8,6 +8,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -19,6 +21,8 @@ import java.sql.Statement;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LiquibaseMariaDBTest {
+    private static final Logger logger = LoggerFactory.getLogger(LiquibaseMariaDBTest.class);
+
     static MariaDBContainer<?> mariadb;
 
     static {
@@ -29,18 +33,23 @@ public class LiquibaseMariaDBTest {
 
     @BeforeAll
     public static void beforeAll() {
+        logger.info("Starting MariaDB Container");
         mariadb.start();
+        logger.info("MariaDB Container Started");
         LiquibaseConnectionProvider connectionProvider = new LiquibaseConnectionProvider(
                 mariadb.getJdbcUrl(),
                 mariadb.getUsername(),
                 mariadb.getPassword()
         );
         lb = new LiquibaseUtils(connectionProvider);
+        logger.info("Liquibase Connection Provider Initialized");
     }
 
     @AfterAll
     public static void afterAll() {
+        logger.info("Stopping MariaDB Container");
         mariadb.stop();
+        logger.info("MariaDB Container Stopped");
     }
 
     @Test
@@ -48,6 +57,7 @@ public class LiquibaseMariaDBTest {
     public void testMariaDBLiquibaseMigrationForCurrentUpdate() throws SQLException {
         lb.setChangelogFile(LiquibaseConstants.MARIADB_CHANGELOG_FILE);
         lb.update();
+        logger.info("Liquibase Update Completed");
 
         try (Connection connection = lb.getConnectionProvider().getConnection();
              Statement statement = connection.createStatement();
@@ -65,6 +75,7 @@ public class LiquibaseMariaDBTest {
 
         lb.setChangelogFile(LiquibaseConstants.MARIADB_CHANGELOG_UPDATE_FILE);
         lb.update();
+        logger.info("Liquibase Update Completed");
 
         try (Connection connection = lb.getConnectionProvider().getConnection();
              Statement statement = connection.createStatement();
