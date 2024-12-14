@@ -1,5 +1,6 @@
-package me.vijaynr.testcontainers.db;
+package me.vijaynr.testcontainers;
 
+import me.vijaynr.testcontainers.db.mariadb.LiquibaseMariaDBTest;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
@@ -9,6 +10,7 @@ import org.junit.platform.suite.api.SuiteDisplayName;
 
 @Suite
 @SuiteDisplayName("Liquibase Migration Test Suite")
-@SelectClasses({LiquibaseMSSQLTest.class, LiquibasePostgresTest.class})
+@SelectClasses({LiquibaseMSSQLTest.class, LiquibasePostgresTest.class, LiquibaseMariaDBTest.class})
 public class LiquibaseTestSuite {
+    // This class will not have any test methods
 }
